@@ -152,16 +152,24 @@ def test_extract_dict():
     expect_dict={'test1':1,'test2':2}
     assert  extract_dict(sample_dict,2)==expect_dict
 
-class Test_show_value_type:
+class Test_untangle_obj:
+    
+    def test_untangle_obj_int_type(self,return_int):
+        assert untangle_obj(type,return_int)==int
    
     @pytest.fixture
     def return_int(self):
         return 1
 
-    @pytest.fixture
-    def return_str(self):
-        return 'test'
-
+    def test_untangle_obj_list_type(self,return_list):
+        int_list,mixed_list,two_D_list,three_D_list,dict_list,array_list=return_list
+        assert untangle_obj(type,int_list)==[int,int,int]
+        assert untangle_obj(type,mixed_list)==[int,float,str]
+        assert untangle_obj(type,two_D_list)==[[int,int,int],[int,float,str]]
+        assert untangle_obj(type,three_D_list)==[[int,int,int],[[int,int,int],[int,float,str]]]
+        assert untangle_obj(type,dict_list)==[[int,int,int],{'t1':int,'t2':int,'t3':int}]
+        assert untangle_obj(type,array_list)==[[int,int,int],[np.int64,np.int64,np.int64]]
+        
     @pytest.fixture
     def return_list(self):
         int_list=[0,1,2]
@@ -173,43 +181,26 @@ class Test_show_value_type:
         
         return int_list,mixed_list,two_D_list,three_D_list,dict_list,array_list
 
+    def test_untangle_obj_dict_type(self,return_dict):
+        int_dict,mixed_dict,list_dict,two_D_dict,three_D_dict,array_dict=return_dict
+        assert untangle_obj(type,int_dict)=={'t1':int,'t2':int,'t3':int}
+        assert untangle_obj(type,mixed_dict)=={'t1':int,'t2':float,'t3':str}
+        assert untangle_obj(type,list_dict)=={'t1':[int,int],'t2':[int,int],'t3':[int,int,int]}
+        assert untangle_obj(type,two_D_dict)=={'t1':{'t1':int,'t2':float,'t3':str},'t2':{'t1':[int,int],'t2':[int,int],\
+                                                't3':[int,int,int]}}
+        assert untangle_obj(type,three_D_dict)=={'t1':{'t1':int,'t2':int,'t3':int},'t2':{'t1':{'t1':int,'t2':float,'t3':str},\
+                                                't2':{'t1':[int,int],'t2':[int,int],'t3':[int,int,int]}}}
+        assert untangle_obj(type,array_dict)=={'t1':{'t1':int,'t2':int,'t3':int},'t2':[np.int64,np.int64,np.int64]}
+
     @pytest.fixture
     def return_dict(self):
         int_dict={'t1':0,'t2':1,'t3':2}
         mixed_dict={'t1':0,'t2':1.3,'t3':'test'}
         list_dict={'t1':[0,1],'t2':[1,2],'t3':[2,3,4]}
-        two_D_dict={'t1':int_dict,'t2':mixed_dict,'t3':list_dict}
+        two_D_dict={'t1':mixed_dict,'t2':list_dict}
         three_D_dict={'t1':int_dict,'t2':two_D_dict}
         array_dict={'t1':int_dict,'t2':np.array([0,1,2])}
         
-        return int_dict,mixed_dict,two_D_dict,three_D_dict,array_dict
+        return int_dict,mixed_dict,list_dict,two_D_dict,three_D_dict,array_dict
 
-    @pytest.fixture
-    def return_array(sefl):
-        int_array=np.array([0,1,2])
-        return int_array
-
-    
-    def test_int_show_value_type(self,return_int):
-        assert show_value_type(return_int)==int
-
-    def test_int_show_value_type(self,return_str):
-        assert show_value_type(return_str)==str
-
-    def test_list_show_value_type(self,return_list):
-        int_list,mixed_list,two_D_list,three_D_list,dict_list,array_list=return_list
-        assert show_value_type(int_list)==[int,int,int]
-        assert show_value_type(mixed_list)==[int,float,str]
-        assert show_value_type(two_D_list)==[[int,int,int],[int,float,str]]
-        assert show_value_type(three_D_list)==[[int,int,int],[[int,int,int],[int,float,str]]]
-        assert show_value_type(dict_list)==[[int,int,int],{'t1':int,'t2':int,'t3':int}]
-        assert show_value_type(array_list)==[[int,int,int],[np.int64,np.int64,np.int64]]
-
-    def test_dict_show_value_type(self,return_dict):
-        int_dict,mixed_dict,two_D_dict,three_D_dict,array_dict=return_dict
-        assert show_value_type(int_dict)=={'t1':int,'t2':int,'t3':int}
-        
-    def test_array_show_value_type(self,return_array):
-        int_array=return_array
-        assert show_value_type(int_array)==[np.int64,np.int64,np.int64]
-    
+  
